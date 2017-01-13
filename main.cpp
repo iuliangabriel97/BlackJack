@@ -11,17 +11,6 @@
 #define inima 03
 #define RESULTS "Blackjack.txt"
 
-struct Player{
-char name[255];
-int suma_disponibila;};
-Player x[20];
-int nr_player=0;
-void adauga_player(char s[],int cash)
-{
-  ifstream f("lista_player.txt")
-
-}
-
 int k,l,d,won,loss,bet,random_carte,dealer_total;
 int cash = 500;
 int player_total=0;
@@ -40,7 +29,6 @@ void cash_test();
 void continua();
 void fileresults();
 bool pachet_trefla[14],pachet_inima[14],pachet_caro[14],pachet_frunza[14];
-
 
 int main()
 {
@@ -349,4 +337,234 @@ int randcarte()
         l=k;
     }
     return l;
+}
+void play()
+{
+    int p=0;
+    int i=1;
+    char alegere3;
+    cash = cash;
+    cash_test();
+    printf("\nCash: $%d\n",cash);
+    randcarte();
+    player_total = p + l;
+    p = player_total;
+    printf("\nTotal player: %d\n", p);
+    dealer();
+    pariaza();
+    while(i<=21)
+    {
+        if(p==21)
+        {
+            printf("\nAi castigat!\n");
+            won = won+1;
+            cash = cash+bet;
+            printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+            dealer_total=0;
+            continua();
+        }
+        if(p>21)
+        {
+            printf("\nAi depasit 21.\n");
+            loss = loss+1;
+            cash = cash - bet;
+            printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+            dealer_total=0;
+            continua();
+        }
+        if(p<=21)
+        {
+            printf("\n\nHit(h) / Stay(s)");
+            scanf("%c", &alegere3);
+            while((alegere3!='H') && (alegere3!='h') && (alegere3!='S') && (alegere3!='s'))
+            {
+                printf("\n");
+                scanf("%c",&alegere3);
+                system("cls");
+
+            }
+            if((alegere3=='H') || (alegere3=='h'))
+            {
+                randcarte();
+                player_total = p + l;
+                p = player_total;
+                printf("\nTotal player: %d\n", p);
+                dealer();
+                if(dealer_total==21)
+                {
+                    printf("\nAi pierdut!\n");
+                    loss = loss+1;
+                    cash = cash - bet;
+                    printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+                    dealer_total=0;
+                    continua();
+                }
+                if(dealer_total>21)
+                {
+                    printf("\nAi castigat!\n");
+                    won = won+1;
+                    cash = cash+bet;
+                    printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+                    dealer_total=0;
+                    continua();
+                }
+            }
+            if((alegere3=='S') || (alegere3=='s'))
+            {
+                printf("\n->Stay<-\n Total player: %d", player_total);
+                stay();
+            }
+        }
+        i++;
+    }
+}
+void dealer()
+{
+    int z;
+    if(dealer_total<17)
+    {
+        srand((unsigned) time(NULL) + 1);
+        z=rand()%13+1;
+        printf("\nDealerul trage %d", z);
+        if(z<=10)
+        {
+            d=z;
+        }
+        if(z>11)
+        {
+            d=10;
+        }
+        if(z==11)
+        {
+            if(dealer_total<=10)
+            {
+                d=11;
+            }
+
+            else
+            {
+                d=1;
+            }
+        }
+        dealer_total = dealer_total + d;
+        printf("\nTotal dealer: %d", dealer_total);
+    }
+}
+void stay()
+{
+    dealer();
+    if(dealer_total>=17)
+    {
+        if(dealer_total>21)
+        {
+            printf("\nAi castigat!\n");
+            printf("\nTotal dealer: %d", dealer_total);
+            won = won+1;
+            cash = cash+bet;
+            printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+            dealer_total=0;
+            continua();
+        }
+        if(player_total>=dealer_total)
+        {
+            printf("\nAi castigat!\n");
+            printf("\nTotal dealer: %d", dealer_total);
+            won = won+1;
+            cash = cash+bet;
+            printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+            dealer_total=0;
+            continua();
+        }
+        if(player_total<dealer_total)
+        {
+            printf("\nAi pierdut!\n");
+            printf("\nTotal dealer: %d", dealer_total);
+            loss = loss+1;
+            cash = cash - bet;
+            printf("\nAi %d victorii si  %d infrangeri.\n", won, loss);
+            dealer_total=0;
+            continua();
+        }
+    }
+    else
+    {
+        stay();
+    }
+
+}
+
+void cash_test()
+{
+    if (cash <= 0)
+    {
+        printf("Game Over");
+        cash = 500;
+        continua();
+    }
+}
+
+int pariaza()
+{
+    printf("\n\nBet: $");
+    scanf("%d", &bet);
+    if (bet > cash)
+    {
+        printf("\nNu ai suficienti bani.");
+        printf("\nBet: ");
+        scanf("%d", &bet);
+        return bet;
+    }
+    else return bet;
+}
+
+void continua()
+{
+    char alegere1;
+
+    printf("\nReluati?");
+    printf("\nY/N?\n");
+    scanf("\n%c",&alegere1);
+
+    while((alegere1!='Y') && (alegere1!='y') && (alegere1!='N') && (alegere1!='n'))
+    {
+        printf("\n");
+        printf("Alegere incorecta.Alegeti Y pentru Da sau N pentru Nu\n");
+        scanf("%c",&alegere1);
+    }
+
+
+    if((alegere1 == 'Y') || (alegere1 == 'y'))
+    {
+        system("cls");
+        play();
+    }
+
+    else if((alegere1 == 'N') || (alegere1 == 'n'))
+    {
+        fileresults();
+        printf("\nLa revedere!\n\n");
+        system("pause");
+        exit(0);
+    }
+    return;
+}
+void fileresults()
+{
+    FILE *fpresults;
+    fpresults = fopen(RESULTS, "w");
+    if(fpresults == NULL)
+    {
+        printf("\nError: File Missing\n");
+        system("pause");
+        exit(1);
+    }
+    else
+    {
+        fprintf(fpresults,"\n\t RESULTS");
+        fprintf(fpresults,"\n\t---------\n");
+        fprintf(fpresults,"\nAi castigat de %d ori\n", won);
+        fprintf(fpresults,"\nAi pierdut de %d ori\n", loss);
+    }
+    fclose(fpresults);
+    return;
 }
